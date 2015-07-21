@@ -80,20 +80,6 @@ namespace YuriNET.CoreServer {
             }
         }
 
-        private enum command_cmd {
-            CMD_CONTROL = 0xFE,
-            CMD_BROADCAST = 0xFF,
-        }
-
-        private enum command_ctl {
-            CTL_PING = 0x0,
-            CTL_QUERY = 0x1,
-            CTL_RESET = 0x2,
-            CTL_DISCONNECT = 0x3,
-            CTL_PROXY = 0x4,
-            CTL_PROXY_DISCONNECT = 0x5,
-        }
-
         //[Conditional("DEBUG")]
         private void runOnDebugging() {
             AllocConsole();
@@ -197,10 +183,7 @@ namespace YuriNET.CoreServer {
                 Logger.info("Creating new SOCKET... on port : {0}", socketPort);
                 udpClient = new UdpClient(socketPort);
                 udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-                // udpClient.BeginReceive(new AsyncCallback(ReceiveCallback), udpClient);
-                //udpClient = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-                //udpClient.Bind(new IPEndPoint(IPAddress.Any, socketPort));
-
+                
                 Logger.info("Creating Socket Thread...");
                 thread = new Thread(ReceiveCallback);
                 thread.Start();
