@@ -15,7 +15,7 @@ using YuriNET.Utils;
 
 namespace YuriNET.CoreServer {
     [Serializable()]
-    class Server : ISerializable {
+    class Server {
         // Debug console
         [DllImport("kernel32.dll")]
         private static extern bool AllocConsole();
@@ -23,37 +23,8 @@ namespace YuriNET.CoreServer {
         private static Assembly assembly = Assembly.GetExecutingAssembly();
         private static FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
 
-        private Server() { }
-
-        // Deserialization Constructor
-        public Server(SerializationInfo info, StreamingContext ctxt) {
-            Clients = (ConcurrentDictionary<int, Client>)info.GetValue("clients",
-                typeof(ConcurrentDictionary<int, Client>));
-            timeout = info.GetInt16("timeout");
-            maxClients = info.GetInt16("maxclients");
-            peekClients = info.GetInt16("peekclients");
-            socketPort = info.GetInt16("socketport");
-            serverName = info.GetString("servername");
-
-            isRestored = true;
+        private Server() {
         }
-
-        // Serialization
-        public void GetObjectData(SerializationInfo info, StreamingContext ctxt) {
-            //You can use any custom name for your name-value pair. But make sure you
-            // read the values with the same name. For ex:- If you write EmpId as "EmployeeId"
-            // then you should read the same with "EmployeeId"
-            info.AddValue("clients", Clients);
-            info.AddValue("timeout", timeout);
-            info.AddValue("maxclients", maxClients);
-            info.AddValue("peekclients", peekClients);
-            info.AddValue("socketport", socketPort);
-            info.AddValue("servername", serverName);
-
-        }
-
-        private static ConcurrentDictionary<int, Client> Clients = new ConcurrentDictionary<int, Client>();
-        private static UdpClient udpClient;
 
         public class Holder {
             private static Server server = new Server();
@@ -62,10 +33,13 @@ namespace YuriNET.CoreServer {
             }
         }
 
-        //private Socket udpClient;
         private Thread thread;
         private Thread threadClearTimeout;
 
+        private static ConcurrentDictionary<short, Client> clients = new ConcurrentDictionary<short, Client>();
+        private static ConcurrentQueue<short> pool;
+
+        private static UdpClient udpClient;
         private bool isStarted;
         private bool isRestored;
         private DateTime launchedOn;
@@ -133,11 +107,17 @@ namespace YuriNET.CoreServer {
 
         private void initClients() {
             Logger.info("Allocating Client Pool...");
-            Clients.Clear();
-            for (int i = 0; i < maxClients; i++) {
-                Clients.TryAdd(i, null);
+            // Clear
+            clients.Clear();
+
+            IList<short> allShort = new List<short>();
+            for (short i = short.MinValue; i < short.MaxValue; i++) {
+                allShort.Add(i);
             }
-            Logger.info("Allocated size : {0}", Clients.Count);
+            allShort.Shuffle();
+            pool = new ConcurrentQueue<short>(allShort);
+
+            Logger.info("Took {0} secs to initialize pool.", DateTimeUtil.TimeDiffBySec(DateTime.Now, launchedOn));
         }
 
         public void setServerName(string v) {
@@ -157,15 +137,15 @@ namespace YuriNET.CoreServer {
         }
 
         public int getPeekClients() {
-            return peekClients; // Not implement yet
+            return peekClients; //TODO: Not implement yet
         }
 
         public int getClientsCount() {
-            return Clients.Where(kvp => kvp.Value != null).ToList().Count;
+            return clients.Where(kvp => kvp.Value != null).ToList().Count;
         }
 
         private string getJsonClients() {
-            var clientsList = Clients.Where(kvp => kvp.Value != null).ToList();
+            var clientsList = clients.Where(kvp => kvp.Value != null).ToList();
             var sb = new StringBuilder("");
             foreach (var kvp in clientsList) {
                 sb.Append("\"").Append(kvp.Value.getId()).Append("\": { ")
@@ -175,8 +155,19 @@ namespace YuriNET.CoreServer {
                   .Append("\"game\": \"").Append(kvp.Value.getGame().ToString()).Append("\" ")
                   .Append(" },");
             }
-            if (clientsList.Count > 0) sb.Length -= 1;
+            if (clientsList.Count > 0)
+                sb.Length -= 1;
             return sb.ToString();
+        }
+
+        private Client getClient(short clientId) {
+            Client client;
+            clients.TryGetValue(clientId, out client);
+            return client;
+        }
+
+        private bool isEqualEndpoint(IPEndPoint ip1, IPEndPoint ip2) {
+            return (ip1.Address.ToString() + ip1.Port).Equals(ip2.Address.ToString() + ip2.Port);
         }
 
         public void startServer() {
@@ -194,8 +185,7 @@ namespace YuriNET.CoreServer {
                 if (!isRestored) {
                     initClients();
                     peekClients = 0;
-                }
-                else {
+                } else {
                     Logger.info(" ** No need to reinitialize after restoring state **");
                 }
 
@@ -225,8 +215,7 @@ namespace YuriNET.CoreServer {
                 //infoServer.start();
 
                 Logger.info("Server is started.");
-            }
-            else {
+            } else {
 
             }
         }
@@ -241,8 +230,7 @@ namespace YuriNET.CoreServer {
                 threadClearTimeout.Abort();
 
                 Logger.info("Server stopped.");
-            }
-            else {
+            } else {
 
             }
         }
@@ -250,228 +238,52 @@ namespace YuriNET.CoreServer {
         private void ReceiveCallback() {
             Logger.info("ReceiveCallback() is on the way...");
             IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
-            //EndPoint remote = (EndPoint)remoteEndPoint;
             while (isStarted) {
-                byte[] receivedBytes; // = new byte[1024];
+                byte[] buf;
 
                 try {
-                    //udpClient.ReceiveFrom(receivedBytes, ref remote);
-                    receivedBytes = udpClient.Receive(ref remoteEndPoint);
-                    //receivedBytes.GetValue();
-                }
-                catch (SocketException ex) {
+                    buf = udpClient.Receive(ref remoteEndPoint);
+                } catch (SocketException ex) {
                     Logger.warn(ex.ToString());
                     continue;
                 }
-                var ipPort = remoteEndPoint.Address.ToString() + ':' + remoteEndPoint.Port;
                 Logger.debug("=========== NEW Received ===========");
-                Logger.debug("Received data from " + ipPort);
-                Client client;
-                int cmdCommand;
-                int ctlCommand;
+                // Logger.debug("Received data from " + ipPort);
 
-                //Stopwatch sw1 = Stopwatch.StartNew();
+                // Get header from packet
+                short hdrFrom = BytesUtil.ToShort(buf[0], buf[1]);
+                short hdrTo = BytesUtil.ToShort(buf[2], buf[3]);
 
                 // Check some condition
-                if (receivedBytes.Length > 1) {
-                    cmdCommand = receivedBytes[0];
-                    ctlCommand = receivedBytes[1];
-                }
-                else {
-                    // New loop
-                    continue;
-                }
-                var dataSend = receivedBytes;
-
-                Logger.debug("Packet size: {0}", receivedBytes.Length);
-
-                if (cmdCommand == (int)command_cmd.CMD_CONTROL) {
-                    // Modes
-                    Logger.info("{0} Request CMD {1} / CTL {2}", ipPort, cmdCommand, ctlCommand);
-                    switch (ctlCommand) {
-                        case (int)command_ctl.CTL_PING:
-                            // Ping Pong
-                            udpClient.Send(dataSend, dataSend.Length, remoteEndPoint);
-                            //udpClient.SendTo(dataSend, dataSend.Length, SocketFlags.None, remote);
-
-                            Logger.info("Sent PONG to {0}", ipPort);
-                            continue;
-
-                        case (int)command_ctl.CTL_QUERY:
-                            Logger.info("Request Query");
-                            // Query clients info
-                            StringBuilder query = new StringBuilder("");
-                            query.Append("  { \"serverstate\": \"online\",")
-                                  .Append("\"servername\": \"").Append(getServerName()).Append("\",")
-                                  .Append("\"serverver\": \"").Append(getServerVersion()).Append("\",")
-                                  .Append("\"serverport\": ").Append(SocketPort).Append(",")
-                                  .Append("\"launchedon\": \"").Append(getLaunchedOn()).Append("\",")
-                                  .Append("\"maxclients\": ").Append(MaxClients).Append(",")
-                                  .Append("\"peekclients\": ").Append(getPeekClients()).Append(",")
-                                  .Append("\"clientcount\": ").Append(getClientsCount()).Append(",")
-                                  .Append("\"clients\": { ")
-                                  .Append(getJsonClients())
-                                  .Append(" }")
-                                  .Append(" }");
-                            var queryb = Encoding.ASCII.GetBytes(query.ToString()); //Program.GetBytes(query.ToString());
-                            udpClient.Send(queryb, queryb.Length, remoteEndPoint);
-                            break;
-
-                        case (int)command_ctl.CTL_RESET:
-                            // Reset server ???
-                            // Not implement yet
-                            break;
-
-                        case (int)command_ctl.CTL_DISCONNECT:
-                            // Disconnecting
-                            Logger.info("CTL_Disconnect");
-                            /*
-                             * How?
-                             * 1. Give ID to this IP:PORT that connected
-                             * 2. removeClient by ID
-                             */
-
-                            //removeClient(client);
-
-                            continue;
-
-                        case (int)command_ctl.CTL_PROXY:
-                            // Proxy ?
-                            // Not implement yet
-                            break;
-
-                        case (int)command_ctl.CTL_PROXY_DISCONNECT:
-                            // Proxy Disconnect ?
-                            // Not implement yet
-                            break;
-                    }
+                if (buf.Length < 2) {
                     continue;
                 }
 
-                // Check max users
-                if (getClientsCount() >= maxClients) {
-                    // Send packet to tell client
-                    // Number clients reach max
-                    Logger.info("Server reach Max of clients. !!");
+                // Get info in Client class type
+                Client clientFrom = getClient(hdrFrom);
+                Client clientTo = getClient(hdrTo);
 
-                    continue;
-                }
-
-                // Add user to Clients Pool
-                // Query exist client from IP : PORT
-                Logger.debug("Giving ID for client");
-                var queryClientId = Clients
-                    .Where(kvp => {
-                        if (kvp.Value != null) {
-                            return kvp.Value.getIpPort() == ipPort;
-                        }
-                        return false;
-                    })
-                    .Select(kvp => kvp.Value)
-                    .FirstOrDefault();
-
-                if (queryClientId != null) //
-                {
-                    // Found client
-                    client = queryClientId;
-                    client.setTimestamp();
-
-                    Logger.debug("Found {0}", client.ToString());
-                }
-                else {
-                    // Not found, Assign this one on empty slot
-
-                    var newId = Clients
-                        .Where(kvp => kvp.Value == null)
-                        .Select(kvp => kvp.Key)
-                        .FirstOrDefault();
-                    client = new Client();
-                    client.setConnection(remoteEndPoint);
-                    client.setId(newId);
-                    client.setTimestamp();
-                    //client.setGame();
-                    Clients.TryUpdate(newId, client, null);
-
-                    Logger.debug("New {0} accepted", client.ToString());
-                    continue;
-                }
-
-
-
-
-                if (cmdCommand == (int)command_cmd.CMD_BROADCAST) {
-                    // Broadcast to all clients
-                    Logger.debug("BROADCAST by {0}", client.getId());
-                    dataSend[0] = (byte)client.getId();
-
-                    var clientsToBroadcast = Clients.Where(kvp => {
-                        if (kvp.Value != null) {
-                            if (kvp.Value.getId() != client.getId()) {
-                                return true;
-                            }
-                        }
-                        return false;
-                    });
-                    foreach (var kvp in clientsToBroadcast) {
-                        Logger.debug("Broadcast to : {0} => {1}", client.ToString(), kvp.Value.ToString());
-                        udpClient.Send(dataSend, dataSend.Length, kvp.Value.getIp(), kvp.Value.getPort());
-                        //udpClient.SendTo(dataSend, kvp.Value.getConnection());
-                    }
-
-                    // Set name & game to current client
-                    if (client.getName() == "" || client.getName() == null) {
-                        try {
-                            string clientName = Encoding.ASCII
-                                .GetString(ArrayUtil.SubArray(receivedBytes, 25, 16)).TrimEnd('\0');
-                            client.setName(clientName);
-                        }
-                        catch (Exception ex) {
-                            Logger.debug("Can't get name from bytes !");
-                            Logger.debug("{0}", ex.ToString());
+                if (null != clientFrom) {
+                    if (null == clientFrom.getConnection()) {
+                        clientFrom.setConnection(remoteEndPoint);
+                    } else {
+                        // Don't allow faking client id
+                        if (! isEqualEndpoint(remoteEndPoint, clientFrom.getConnection())) {
+                            clientFrom = null;
                         }
                     }
-
-                    if (client.getGame() == Client.Game.Non) {
-                        Client.Game clientGame;
-
-                        if (receivedBytes[19] == 3) {
-                            clientGame = Client.Game.RA2;
-                        }
-                        else if (receivedBytes[19] == 4) {
-                            clientGame = Client.Game.YR;
-                        }
-                        else {
-                            clientGame = Client.Game.Non;
-                        }
-
-                        client.setGame(clientGame);
-                    }
-
-
                 }
-                else if (cmdCommand != client.getId()) //cmdCommand != client.getId()
-                {
-                    // Send to specify ID
-                    var idSend = cmdCommand;
-                    dataSend[0] = (byte)client.getId();
-                    Logger.debug("Send to specify ID #{0} => #{1}", client.getId(), idSend);
 
-                    Client c;
-                    if (Clients.TryGetValue(idSend, out c)) {
-                        if (c != null) {
-                            Logger.debug("Send to : {0} => {1}", client.ToString(), c.ToString());
-                            udpClient.Send(dataSend, dataSend.Length, c.getIp(), c.getPort());
-                            //udpClient.SendTo(dataSend, c.getConnection());
-                        }
-                        else {
-                            Logger.error("Error can't send to {0}", idSend);
-                        }
+                if (null == clientFrom || null == clientTo || hdrFrom == hdrTo || !clientTo.isKnownClient(clientFrom.getId())) {
+                    Logger.debug("Ignoring packet from " + hdrFrom + " to " + hdrTo + " (" + remoteEndPoint.Address.ToString() + ":" + remoteEndPoint.Port + "), was " + buf.Length + " bytes");
+                } else {
+                    clientFrom.setTimestamp();
 
-                    }
-                    else {
-                        Logger.error("Error can't get to send to {0}", idSend);
+                    if (clientTo.getConnection() != null) {
+                        udpClient.Send(buf, buf.Length, clientTo.getConnection());
                     }
                 }
+
             }
         }
 
@@ -487,7 +299,7 @@ namespace YuriNET.CoreServer {
                     peekClients = clientscount;
                 }
 
-                var timeouts = Clients
+                var timeouts = clients
 
                    .Where(kvp => {
                        if (kvp.Value != null) {
@@ -503,7 +315,7 @@ namespace YuriNET.CoreServer {
                         removeClient(kvp.Value);
                         Logger.info("Disconnect client {0} by timed out.", kvp.Value.ToString());
                     }
-                    Logger.debug("(Timeout checker) Clients size: {0}", Clients.Count);
+                    Logger.debug("(Timeout checker) Clients size: {0}", clients.Count);
 
                     Logger.info("(Timeout checker) Clients count: {0}", clientscount);
                     Logger.info("(Timeout checker) Peek Clients: {0}", peekClients);
@@ -516,10 +328,10 @@ namespace YuriNET.CoreServer {
             removeClient(c.getId(), c);
         }
 
-        private void removeClient(int k, Client c) {
+        private void removeClient(short k, Client c) {
             //Clients.TryRemove(k, out c);
             Logger.debug("Remove Client : {0}", c.ToString());
-            Clients.TryUpdate(k, null, c);
+            clients.TryUpdate(k, null, c);
             c.Dispose();
         }
 

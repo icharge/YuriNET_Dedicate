@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using YuriNET.Components;
 
 namespace YuriNET_Dedicate
 {
@@ -41,28 +42,5 @@ namespace YuriNET_Dedicate
         [DllImport("user32.dll")]
         private static extern bool SetProcessDPIAware();
 
-        public static long GetTimestamp(DateTime value)
-        {
-            return long.Parse(value.ToString("yyyyMMddHHmmss"));//yyyyMMddHHmmssffff
-        }
-
-        public static int TimeDiffBySec(long t1, long t2)
-        {
-            return (int)((t1 - t2));
-        }
-
-        public static byte[] GetBytes(string str)
-        {
-            byte[] bytes = new byte[str.Length * sizeof(char)];
-            System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
-            return bytes;
-        }
-
-        public static string GetString(byte[] bytes)
-        {
-            char[] chars = new char[bytes.Length / sizeof(char)];
-            System.Buffer.BlockCopy(bytes, 0, chars, 0, bytes.Length);
-            return new string(chars);
-        }
     }
 }
