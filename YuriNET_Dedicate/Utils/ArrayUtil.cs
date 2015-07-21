@@ -5,7 +5,7 @@ using System.Text;
 
 namespace YuriNET.Utils
 {
-    static class ArrayUtils
+    static class ArrayUtil
     {
         public static T[] SubArray<T>(this T[] data, int index, int length)
         {

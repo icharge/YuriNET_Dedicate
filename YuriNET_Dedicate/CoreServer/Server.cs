@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -12,7 +13,7 @@ using System.Text;
 using System.Threading;
 using YuriNET.Utils;
 
-namespace YuriNET.Server {
+namespace YuriNET.CoreServer {
     [Serializable()]
     class Server : ISerializable {
         // Debug console
@@ -256,6 +257,7 @@ namespace YuriNET.Server {
                 try {
                     //udpClient.ReceiveFrom(receivedBytes, ref remote);
                     receivedBytes = udpClient.Receive(ref remoteEndPoint);
+                    //receivedBytes.GetValue();
                 }
                 catch (SocketException ex) {
                     Logger.warn(ex.ToString());
@@ -420,7 +422,7 @@ namespace YuriNET.Server {
                     if (client.getName() == "" || client.getName() == null) {
                         try {
                             string clientName = Encoding.ASCII
-                                .GetString(ArrayUtils.SubArray(receivedBytes, 25, 16)).TrimEnd('\0');
+                                .GetString(ArrayUtil.SubArray(receivedBytes, 25, 16)).TrimEnd('\0');
                             client.setName(clientName);
                         }
                         catch (Exception ex) {

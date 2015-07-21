@@ -2,7 +2,7 @@
 using System.Drawing;
 using System;
 
-namespace YuriNET_Dedicate
+namespace YuriNET.Components
 {
     class InputBox
     {

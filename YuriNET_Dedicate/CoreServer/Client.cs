@@ -5,7 +5,7 @@ using System.Text;
 using System.Net;
 using System.Runtime.Serialization;
 
-namespace YuriNET.Server
+namespace YuriNET.CoreServer
 {
     [Serializable()]
     class Client : IDisposable, ISerializable
