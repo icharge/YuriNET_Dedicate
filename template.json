@@ -1,0 +1,21 @@
+{
+  "serverstate": "online",
+  "servername": "Server#1",
+  "serverport": 4434,
+  "launchedon": "5/8/2015",
+  "maxclients": 60,
+  "peekclients": 22,
+  "clientcount": 12,
+  "clients": {
+    "1": {
+      "name": "iCharge",
+      "ip": "xxx",
+      "port": 23231
+    },
+    "2": {
+      "name": "HK",
+      "ip": "xxx",
+      "port": 23135
+    }
+  }
+}
