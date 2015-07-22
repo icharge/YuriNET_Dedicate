@@ -72,11 +72,15 @@ namespace YuriNET.CoreServer.Http {
 
         public override void handleGETRequest(HttpProcessor p) {
 
-            // NOT FOUND
+            // Context Path here .......
+
+            // No FavIcon
             if (p.http_url.Equals("/favicon.ico")) {
                 p.writeFailure();
                 return;
             }
+
+            // Test respond resource
             if (p.http_url.Equals("/Test.png")) {
                 Stream fs = File.Open("../../Test.png", FileMode.Open);
 
@@ -91,6 +95,18 @@ namespace YuriNET.CoreServer.Http {
             p.outputStream.WriteLine("<html><body><h1>test server</h1>");
             p.outputStream.WriteLine("Current Time: " + DateTime.Now.ToString());
             p.outputStream.WriteLine("url : {0}", p.http_url);
+
+            // test respond data
+            if (p.http_url.StartsWith("/?clients")) {
+                p.outputStream.WriteLine("Clients : " + clients.Count);
+                for (int i = 0; i < pool.Count; i++ ) {
+                    short ii;
+                    pool.TryTake(out ii);
+                    p.outputStream.Write(ii + ", ");
+                    pool.TryAdd(ii);
+                }
+                p.outputStream.WriteLine();
+            }
 
             p.outputStream.WriteLine("<form method=post action=/form>");
             p.outputStream.WriteLine("<input type=text name=foo value=foovalue>");
