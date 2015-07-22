@@ -7,13 +7,11 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using YuriNET.CoreServer;
-using YuriNET.Storage;
 using YuriNET.Utils;
 
-namespace YuriNET_Dedicate {
+namespace YuriNET {
     public partial class Form1 : Form {
         private Server server;
-        private static NoreStorage storage = new NoreStorage("server.dat");
 
         public Form1() {
             InitializeComponent();
@@ -70,16 +68,16 @@ namespace YuriNET_Dedicate {
         }
 
         private void btn_loadState_Click(object sender, EventArgs e) {
-            storage.Load();
-            server = (Server) storage.get_Item("server");
+            //storage.Load();
+            //server = (Server) storage.get_Item("server");
             server.startServer();
             button1.Enabled = false;
             button3.Enabled = true;
         }
 
         private void btn_saveState_Click(object sender, EventArgs e) {
-            storage.set_Item("server", server);
-            storage.Save();
+            //storage.set_Item("server", server);
+            //storage.Save();
             server.stopServer();
             button1.Enabled = true;
             button3.Enabled = false;

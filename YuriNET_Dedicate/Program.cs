@@ -5,20 +5,18 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using YuriNET.Components;
 
-namespace YuriNET_Dedicate
-{
-    static class Program
-    {
+namespace YuriNET {
+    static class Program {
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main(String[] args)
-        {
-            if (Environment.OSVersion.Version.Major >= 6) SetProcessDPIAware();
+        static void Main(String[] args) {
+            if (Environment.OSVersion.Version.Major >= 6) NativeMethods.SetProcessDPIAware();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            /**
             if (!args.Contains("/ByPa55"))
             {
                 string pw = "";
@@ -34,13 +32,12 @@ namespace YuriNET_Dedicate
                     return;
                 }
             }
+            */
 
             Application.Run(new Form1());
         }
 
-        // For DPI Aware
-        [DllImport("user32.dll")]
-        private static extern bool SetProcessDPIAware();
+
 
     }
 }

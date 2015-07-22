@@ -7,7 +7,7 @@
     <ProjectGuid>{D7C27D1E-1771-41D8-9E02-C89DD15E1288}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>YuriNET.Dedicated</RootNamespace>
+    <RootNamespace>YuriNET</RootNamespace>
     <AssemblyName>YuriNET_Dedicate</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -55,6 +55,7 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Components\InputBox.cs" />
+    <Compile Include="NativeMethods\NativeMethods.cs" />
     <Compile Include="Utils\BytesUtil.cs" />
     <Compile Include="Utils\DateTimeUtil.cs" />
     <Compile Include="Utils\Logger.cs" />
@@ -86,12 +87,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\YuriNET\SaveStruct\SaveStruct\SaveStruct.vbproj">
-      <Project>{86d1e312-4afe-43c3-8a30-a67e78d5bab6}</Project>
-      <Name>SaveStruct</Name>
-    </ProjectReference>
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

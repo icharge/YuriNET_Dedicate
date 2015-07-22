@@ -1,4 +1,4 @@
-﻿namespace YuriNET_Dedicate
+﻿namespace YuriNET
 {
     partial class Form1
     {
