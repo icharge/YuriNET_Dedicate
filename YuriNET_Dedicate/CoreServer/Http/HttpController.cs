@@ -1,0 +1,157 @@
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using YuriNET.Utils;
+
+namespace YuriNET.CoreServer.Http {
+    class HttpController : HttpServer {
+
+        private ConcurrentDictionary<short, Client> clients = new ConcurrentDictionary<short, Client>();
+        private IProducerConsumerCollection<short> pool;
+        private Server myServer;
+
+        private Thread threadClearTimeout;
+
+        private int timeout = 10;
+        private int peekClients = 0;
+
+        public HttpController(int port)
+            : base(port) {
+        }
+
+        public HttpController(Server server)
+            : base(server.SocketPort) {
+            myServer = server;
+            timeout = server.Timeout;
+
+            initClients();
+
+            Logger.info("Creating Timeout Kicker Thread...");
+            threadClearTimeout = new Thread(timeoutKicker);
+            threadClearTimeout.Start();
+        }
+
+        private void initClients() {
+            Logger.info("Allocating Client Pool...");
+            // Clear
+            clients.Clear();
+
+            IList<short> allShort = new List<short>();
+            for (short i = short.MinValue; i < short.MaxValue; i++) {
+                allShort.Add(i);
+            }
+            allShort.Shuffle();
+            pool = new ConcurrentQueue<short>(allShort);
+
+            Logger.info("Took {0} secs to initialize pool.", DateTimeUtil.TimeDiffBySec(DateTime.Now, myServer.getLaunchedOnDate()));
+        }
+
+        public override void stop() {
+            base.stop();
+            threadClearTimeout.Abort();
+
+        }
+
+        public Client getClient(short clientId) {
+            Client client;
+            clients.TryGetValue(clientId, out client);
+            return client;
+        }
+
+        public int getClientsCount() {
+            return clients.Where(kvp => kvp.Value != null).ToList().Count;
+        }
+
+        public int getPeekClients() {
+            return peekClients;
+        }
+
+        public override void handleGETRequest(HttpProcessor p) {
+
+            // NOT FOUND
+            if (p.http_url.Equals("/favicon.ico")) {
+                p.writeFailure();
+                return;
+            }
+            if (p.http_url.Equals("/Test.png")) {
+                Stream fs = File.Open("../../Test.png", FileMode.Open);
+
+                p.writeSuccess("image/png");
+                fs.CopyTo(p.outputStream.BaseStream);
+                p.outputStream.BaseStream.Flush();
+                fs.Close();
+            }
+
+            Logger.debug("request: {0}", p.http_url);
+            p.writeSuccess();
+            p.outputStream.WriteLine("<html><body><h1>test server</h1>");
+            p.outputStream.WriteLine("Current Time: " + DateTime.Now.ToString());
+            p.outputStream.WriteLine("url : {0}", p.http_url);
+
+            p.outputStream.WriteLine("<form method=post action=/form>");
+            p.outputStream.WriteLine("<input type=text name=foo value=foovalue>");
+            p.outputStream.WriteLine("<input type=submit name=bar value=barvalue>");
+            p.outputStream.WriteLine("</form>");
+        }
+
+        public override void handlePOSTRequest(HttpProcessor p, StreamReader inputData) {
+            Logger.debug("POST request: {0}", p.http_url);
+            string data = inputData.ReadToEnd();
+
+            p.writeSuccess();
+            p.outputStream.WriteLine("<html><body><h1>test server</h1>");
+            p.outputStream.WriteLine("<a href=/test>return</a><p>");
+            p.outputStream.WriteLine("postbody: <pre>{0}</pre>", data);
+        }
+
+        private void timeoutKicker() {
+            Logger.info("Started Timeout Kicker thread...");
+            while (myServer.isServerStarted()) {
+                var clientscount = getClientsCount();
+                if (clientscount > peekClients) {
+                    peekClients = clientscount;
+                }
+
+                var timeouts = clients
+
+                   .Where(kvp => {
+                       if (kvp.Value != null) {
+                           int dayplus = (DateTime.Now - kvp.Value.getTimestamp()).Seconds;
+                           return dayplus > timeout;
+                       }
+                       return false;
+                   })
+                   .ToList();
+                if (timeouts.Count > 0) {
+                    Logger.debug("Found timed out clients...");
+                    foreach (var kvp in timeouts) {
+                        removeClient(kvp.Value);
+                        Logger.info("Disconnect client {0} by timed out.", kvp.Value.ToString());
+                    }
+                    Logger.debug("(Timeout checker) Clients size: {0}", clients.Count);
+
+                    Logger.info("(Timeout checker) Clients count: {0}", clientscount);
+                    Logger.info("(Timeout checker) Peek Clients: {0}", peekClients);
+                }
+                Thread.Sleep(400);
+            }
+        }
+
+        private void removeClient(Client c) {
+            removeClient(c.getId(), c);
+        }
+
+        private void removeClient(short k, Client c) {
+            //Clients.TryRemove(k, out c);
+            Logger.debug("Remove Client : {0}", c.ToString());
+            clients.TryUpdate(k, null, c);
+            c.Dispose();
+        }
+
+
+    }
+}

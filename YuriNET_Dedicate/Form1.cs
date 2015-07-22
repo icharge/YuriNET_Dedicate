@@ -15,10 +15,10 @@ namespace YuriNET {
 
         public Form1() {
             InitializeComponent();
-            rbDbgNone.Tag = Logger.DisplayLevels.Info;
-            rbDbgDebug.Tag = Logger.DisplayLevels.Debug | Logger.DisplayLevels.Info;
-            rbDbgWarn.Tag = Logger.DisplayLevels.Warn | Logger.DisplayLevels.Debug | Logger.DisplayLevels.Info;
-            rbDbgError.Tag = Logger.DisplayLevels.Error | Logger.DisplayLevels.Warn | Logger.DisplayLevels.Debug | Logger.DisplayLevels.Info;
+            rbDbgNone.Tag = Logger.DisplayLevels.All ^ Logger.DisplayLevels.Debug;
+            rbDbgDebug.Tag = Logger.DisplayLevels.All;
+            rbDbgWarn.Tag = Logger.DisplayLevels.Warn | Logger.DisplayLevels.Info;
+            rbDbgError.Tag = Logger.DisplayLevels.Error | Logger.DisplayLevels.Info;
 
             EventHandler eventSetDbgLvl = new EventHandler(
                 (sender, e) => Logger.DisplayLevel = getSelectedLogLevel()

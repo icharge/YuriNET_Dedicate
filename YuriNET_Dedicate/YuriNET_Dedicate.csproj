@@ -48,7 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CoreServer\Client.cs" />
-    <Compile Include="CoreServer\Http\HttpChannel.cs" />
+    <Compile Include="CoreServer\Http\HttpController.cs" />
     <Compile Include="CoreServer\Http\HttpProcessor.cs" />
     <Compile Include="CoreServer\Http\HttpServer.cs" />
     <Compile Include="Form1.cs">

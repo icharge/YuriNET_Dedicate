@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using YuriNET.Utils;
 
 // offered to the public domain for any use with no restriction
 // and also with no warranty of any kind, please enjoy. - David Jeske. 
@@ -28,7 +28,7 @@ namespace YuriNET.CoreServer.Http {
         public String http_method;
         public String http_url;
         public String http_protocol_versionstring;
-        public IDictionary httpHeaders = new Dictionary<String, String>();
+        public Hashtable httpHeaders = new Hashtable();
 
 
         private static int MAX_POST_SIZE = 10 * 1024 * 1024; // 10MB
@@ -42,7 +42,7 @@ namespace YuriNET.CoreServer.Http {
         private string streamReadLine(Stream inputStream) {
             int next_char;
             string data = "";
-            while (true) {
+            while (srv.isActive()) {
                 next_char = inputStream.ReadByte();
                 if (next_char == '\n') {
                     break;
@@ -74,7 +74,7 @@ namespace YuriNET.CoreServer.Http {
                     handlePOSTRequest();
                 }
             } catch (Exception e) {
-                Console.WriteLine("Exception: " + e.ToString());
+                Logger.error("Exception: " + e.ToString());
                 writeFailure();
             }
             outputStream.Flush();
@@ -82,6 +82,9 @@ namespace YuriNET.CoreServer.Http {
             inputStream = null;
             outputStream = null; // bs = null;            
             socket.Close();
+            if (!srv.isActive()) {
+                Logger.info("Closed connection.");
+            }
         }
 
         public void parseRequest() {
@@ -94,15 +97,15 @@ namespace YuriNET.CoreServer.Http {
             http_url = tokens[1];
             http_protocol_versionstring = tokens[2];
 
-            Console.WriteLine("starting: " + request);
+            Logger.debug("starting: " + request);
         }
 
         public void readHeaders() {
-            Console.WriteLine("readHeaders()");
+            Logger.debug("readHeaders()");
             String line;
             while ((line = streamReadLine(inputStream)) != null) {
                 if (line.Equals("")) {
-                    Console.WriteLine("got headers");
+                    Logger.debug("got headers");
                     return;
                 }
 
@@ -117,7 +120,7 @@ namespace YuriNET.CoreServer.Http {
                 }
 
                 string value = line.Substring(pos, line.Length - pos);
-                Console.WriteLine("header: {0}:{1}", name, value);
+                Logger.debug("header: {0}:{1}", name, value);
                 httpHeaders[name] = value;
             }
         }
@@ -134,7 +137,7 @@ namespace YuriNET.CoreServer.Http {
             // we hand him needs to let him see the "end of the stream" at this content 
             // length, because otherwise he won't know when he's seen it all! 
 
-            Console.WriteLine("get post data start");
+            Logger.debug("get post data start");
             int content_len = 0;
             MemoryStream ms = new MemoryStream();
             if (this.httpHeaders.Contains("Content-Length")) {
@@ -147,10 +150,10 @@ namespace YuriNET.CoreServer.Http {
                 byte[] buf = new byte[BUF_SIZE];
                 int to_read = content_len;
                 while (to_read > 0) {
-                    Console.WriteLine("starting Read, to_read={0}", to_read);
+                    Logger.debug("starting Read, to_read={0}", to_read);
 
                     int numread = this.inputStream.Read(buf, 0, Math.Min(BUF_SIZE, to_read));
-                    Console.WriteLine("read finished, numread={0}", numread);
+                    Logger.debug("read finished, numread={0}", numread);
                     if (numread == 0) {
                         if (to_read == 0) {
                             break;
@@ -163,7 +166,7 @@ namespace YuriNET.CoreServer.Http {
                 }
                 ms.Seek(0, SeekOrigin.Begin);
             }
-            Console.WriteLine("get post data end");
+            Logger.debug("get post data end");
             srv.handlePOSTRequest(this, new StreamReader(ms));
 
         }
