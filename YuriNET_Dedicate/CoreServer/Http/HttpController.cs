@@ -18,6 +18,7 @@ namespace YuriNET.CoreServer.Http {
 
         private int timeout = 10;
         private int peekClients = 0;
+        private string password = "";
 
         public HttpController(int port)
             : base(port) {
@@ -71,6 +72,39 @@ namespace YuriNET.CoreServer.Http {
         }
 
         public override void handleGETRequest(HttpProcessor p) {
+            // Preparing
+            int requestedAmount = 0;
+            bool pwOk = (password == null);
+            string param = p.http_url;
+            if (param.StartsWith("/")) {
+                param = param.Substring(1);
+            }
+            Logger.debug("request: {0}", param);
+
+            string[] pairs = param.Split('&');
+            for (int i = 0; i < pairs.Length; i++) {
+                string[] kv = pairs[i].Split('=');
+                if (kv.Length != 2)
+                    continue;
+
+                //kv[0] = URLDecoder.decode(kv[0], "UTF-8");
+                //kv[1] = URLDecoder.decode(kv[1], "UTF-8");
+
+                if (kv[0].Equals("clients")) {
+                    requestedAmount = Int32.Parse(kv[1]);
+                }
+
+                if (kv[0].Equals("password") && !pwOk && kv[1].Equals(password)) {
+                    pwOk = true;
+                }
+            }
+
+            if (!pwOk) {
+                Logger.info("Request was unauthorized.");
+                p.writeFailure();
+                p.outputStream.WriteLine("<html><body><h1>Unauthorized</h1></html>");
+                return;
+            }
 
             // Context Path here .......
 
@@ -90,7 +124,14 @@ namespace YuriNET.CoreServer.Http {
                 fs.Close();
             }
 
-            Logger.debug("request: {0}", p.http_url);
+
+            if (requestedAmount < 2 || requestedAmount > 8) {
+                // Bad Request
+                Logger.info("Request had invalid requested amount (" + requestedAmount + ").");
+                p.writeFailure();
+                return;
+            }
+
             p.writeSuccess();
             p.outputStream.WriteLine("<html><body><h1>test server</h1>");
             p.outputStream.WriteLine("Current Time: " + DateTime.Now.ToString());
