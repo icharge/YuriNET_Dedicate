@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Web;
 using YuriNET.Utils;
 
 // offered to the public domain for any use with no restriction
@@ -29,7 +31,7 @@ namespace YuriNET.CoreServer.Http {
         public String http_url;
         public String http_protocol_versionstring;
         public Hashtable httpHeaders = new Hashtable();
-
+        public IDictionary<String, String> http_query;
 
         private static int MAX_POST_SIZE = 10 * 1024 * 1024; // 10MB
 
@@ -95,9 +97,31 @@ namespace YuriNET.CoreServer.Http {
             }
             http_method = tokens[0].ToUpper();
             http_url = tokens[1];
+            http_query = ToUrlCollection(http_url);
             http_protocol_versionstring = tokens[2];
 
             Logger.debug("starting: " + request);
+        }
+
+        private IDictionary<String, String> ToUrlCollection(string http_url) {
+            IDictionary<String, String> ht = new Dictionary<String, String>();
+
+            Uri uri = new Uri("http://server" + http_url);
+            http_url = uri.Query.Substring(uri.Query.IndexOf('?') + 1);
+            var queries = http_url.Split('&');
+
+            for (int i = 0, count = queries.Length; i < count; i++) {
+                var kvp = queries[i].Split('=');
+                String key = null;
+                String value = null;
+                if (null != kvp) {
+                    key = HttpUtility.UrlDecode(kvp[0], Encoding.UTF8);
+                    if (kvp.Length > 1)
+                        value = HttpUtility.UrlDecode(kvp[1], Encoding.UTF8);
+                    ht.Add(key, value);
+                }
+            }
+            return ht;
         }
 
         public void readHeaders() {

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Web;
 using YuriNET.Utils;
 
 namespace YuriNET.CoreServer.Http {
@@ -18,7 +19,7 @@ namespace YuriNET.CoreServer.Http {
 
         private int timeout = 10;
         private int peekClients = 0;
-        private string password = "";
+        private string password = null;
 
         public HttpController(int port)
             : base(port) {
@@ -79,23 +80,17 @@ namespace YuriNET.CoreServer.Http {
             if (param.StartsWith("/")) {
                 param = param.Substring(1);
             }
-            Logger.debug("request: {0}", param);
+            Logger.debug("request: {0}", p.http_url);
 
-            string[] pairs = param.Split('&');
-            for (int i = 0; i < pairs.Length; i++) {
-                string[] kv = pairs[i].Split('=');
-                if (kv.Length != 2)
-                    continue;
-
-                //kv[0] = URLDecoder.decode(kv[0], "UTF-8");
-                //kv[1] = URLDecoder.decode(kv[1], "UTF-8");
-
-                if (kv[0].Equals("clients")) {
-                    requestedAmount = Int32.Parse(kv[1]);
-                }
-
-                if (kv[0].Equals("password") && !pwOk && kv[1].Equals(password)) {
-                    pwOk = true;
+            if (p.http_query.Count > 0) {
+                // Input URL Queries
+                if (p.http_url.Contains("request")) {
+                    if (!Int32.TryParse(p.http_query["request"], out requestedAmount)) {
+                        Logger.info("Invalid number");
+                        p.writeFailure();
+                        p.outputStream.WriteLine("<html><body><h1>Invalid number</h1></html>");
+                        return;
+                    }
                 }
             }
 
@@ -106,13 +101,6 @@ namespace YuriNET.CoreServer.Http {
                 return;
             }
 
-            // Context Path here .......
-
-            // No FavIcon
-            if (p.http_url.Equals("/favicon.ico")) {
-                p.writeFailure();
-                return;
-            }
 
             // Test respond resource
             if (p.http_url.Equals("/Test.png")) {
