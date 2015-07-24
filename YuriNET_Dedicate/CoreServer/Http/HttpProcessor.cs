@@ -77,7 +77,7 @@ namespace YuriNET.CoreServer.Http {
                 }
             } catch (Exception e) {
                 Logger.error("Exception: " + e.ToString());
-                writeFailure();
+                write404();
             }
             outputStream.Flush();
             // bs.Flush(); // flush any remaining output
@@ -202,8 +202,38 @@ namespace YuriNET.CoreServer.Http {
             outputStream.WriteLine("");
         }
 
-        public void writeFailure() {
+        public void write400() {
+            outputStream.WriteLine("HTTP/1.0 400 Bad Request");
+            outputStream.WriteLine("Connection: close");
+            outputStream.WriteLine("");
+        }
+
+        public void write401() {
+            outputStream.WriteLine("HTTP/1.0 401 Unauthorized");
+            outputStream.WriteLine("Connection: close");
+            outputStream.WriteLine("");
+        }
+
+        public void write403() {
+            outputStream.WriteLine("HTTP/1.0 403 Forbidden");
+            outputStream.WriteLine("Connection: close");
+            outputStream.WriteLine("");
+        }
+
+        public void write404() {
             outputStream.WriteLine("HTTP/1.0 404 File not found");
+            outputStream.WriteLine("Connection: close");
+            outputStream.WriteLine("");
+        }
+
+        public void write500() {
+            outputStream.WriteLine("HTTP/1.0 500 Internal Server Error");
+            outputStream.WriteLine("Connection: close");
+            outputStream.WriteLine("");
+        }
+
+        public void write503() {
+            outputStream.WriteLine("HTTP/1.0 503 Service Unavailable");
             outputStream.WriteLine("Connection: close");
             outputStream.WriteLine("");
         }

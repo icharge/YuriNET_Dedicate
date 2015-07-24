@@ -39,9 +39,8 @@ namespace YuriNET.CoreServer {
         private HttpController controller;
 
         private bool isStarted;
-        private bool isRestored;
         private DateTime launchedOn;
-        private int timeout = 10;
+        private int timeout = 60;
         private int maxClients = 60;
         private int socketPort = 9000;
         private string serverName = "YuriNET Dedicated";

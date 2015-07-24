@@ -38,7 +38,7 @@ namespace YuriNET.CoreServer {
         private IPEndPoint connection;
         private String name;
         private DateTime timestamp;
-        private List<short> friends;
+        private IList<short> friends;
         public enum Game {
             Non,
             RA2,
@@ -46,8 +46,9 @@ namespace YuriNET.CoreServer {
         }
         private Game game;
 
-        public Client(short id, List<short> friends) {
+        public Client(short id, IList<short> friends) {
             this.id = id;
+            this.setName("Unknown");
             this.setTimestamp();
             this.friends = friends;
         }
@@ -81,7 +82,7 @@ namespace YuriNET.CoreServer {
         }
 
         public String getIpPort() {
-            return connection.Address.ToString() + ':' + connection.Port.ToString();
+            return null != getConnection() ? connection.Address.ToString() + ':' + connection.Port.ToString() : "Not connected";
         }
 
         public String getName() {
