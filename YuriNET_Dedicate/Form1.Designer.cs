@@ -40,9 +40,9 @@
             this.btn_loadState = new System.Windows.Forms.Button();
             this.rbDbgNone = new System.Windows.Forms.RadioButton();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.rbDbgDebug = new System.Windows.Forms.RadioButton();
-            this.rbDbgWarn = new System.Windows.Forms.RadioButton();
             this.rbDbgError = new System.Windows.Forms.RadioButton();
+            this.rbDbgWarn = new System.Windows.Forms.RadioButton();
+            this.rbDbgDebug = new System.Windows.Forms.RadioButton();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -94,7 +94,7 @@
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(188, 48);
             this.label2.TabIndex = 4;
-            this.label2.Text = "By ThaiRA2Lovers\r\nBased on CNCNET 3";
+            this.label2.Text = "By ThaiRA2Lovers\r\nBased on CNCNET 5";
             // 
             // button2
             // 
@@ -134,6 +134,7 @@
             this.btn_saveState.TabIndex = 1;
             this.btn_saveState.Text = "Save State";
             this.btn_saveState.UseVisualStyleBackColor = true;
+            this.btn_saveState.Visible = false;
             this.btn_saveState.Click += new System.EventHandler(this.btn_saveState_Click);
             // 
             // btn_loadState
@@ -145,6 +146,7 @@
             this.btn_loadState.TabIndex = 1;
             this.btn_loadState.Text = "Load State";
             this.btn_loadState.UseVisualStyleBackColor = true;
+            this.btn_loadState.Visible = false;
             this.btn_loadState.Click += new System.EventHandler(this.btn_loadState_Click);
             // 
             // rbDbgNone
@@ -172,15 +174,15 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Debug Level";
             // 
-            // rbDbgDebug
+            // rbDbgError
             // 
-            this.rbDbgDebug.AutoSize = true;
-            this.rbDbgDebug.Location = new System.Drawing.Point(20, 68);
-            this.rbDbgDebug.Name = "rbDbgDebug";
-            this.rbDbgDebug.Size = new System.Drawing.Size(93, 28);
-            this.rbDbgDebug.TabIndex = 7;
-            this.rbDbgDebug.Text = "Debug";
-            this.rbDbgDebug.UseVisualStyleBackColor = true;
+            this.rbDbgError.AutoSize = true;
+            this.rbDbgError.Location = new System.Drawing.Point(20, 136);
+            this.rbDbgError.Name = "rbDbgError";
+            this.rbDbgError.Size = new System.Drawing.Size(78, 28);
+            this.rbDbgError.TabIndex = 7;
+            this.rbDbgError.Text = "Error";
+            this.rbDbgError.UseVisualStyleBackColor = true;
             // 
             // rbDbgWarn
             // 
@@ -192,15 +194,15 @@
             this.rbDbgWarn.Text = "Warning";
             this.rbDbgWarn.UseVisualStyleBackColor = true;
             // 
-            // rbDbgError
+            // rbDbgDebug
             // 
-            this.rbDbgError.AutoSize = true;
-            this.rbDbgError.Location = new System.Drawing.Point(20, 136);
-            this.rbDbgError.Name = "rbDbgError";
-            this.rbDbgError.Size = new System.Drawing.Size(78, 28);
-            this.rbDbgError.TabIndex = 7;
-            this.rbDbgError.Text = "Error";
-            this.rbDbgError.UseVisualStyleBackColor = true;
+            this.rbDbgDebug.AutoSize = true;
+            this.rbDbgDebug.Location = new System.Drawing.Point(20, 68);
+            this.rbDbgDebug.Name = "rbDbgDebug";
+            this.rbDbgDebug.Size = new System.Drawing.Size(93, 28);
+            this.rbDbgDebug.TabIndex = 7;
+            this.rbDbgDebug.Text = "Debug";
+            this.rbDbgDebug.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
