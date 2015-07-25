@@ -140,8 +140,7 @@ namespace YuriNET.CoreServer {
             Logger.info("Attemping to start server...");
 
             Logger.info("Initializing Server...");
-            //Clients = new ConcurrentDictionary<int, Client>();
-            //initClients();
+
             if (!isStarted) {
                 Logger.info("Reading configurations...");
                 isStarted = true;
@@ -164,13 +163,7 @@ namespace YuriNET.CoreServer {
                 controller = new HttpController(this);
                 controller.bind();
 
-                //Logger.info("Starting InfoServer...");
-                //infoServer = new InfoServer(this);
-                //infoServer.start();
-
                 Logger.info("Server is started.");
-            } else {
-
             }
         }
 

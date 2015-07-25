@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 
 namespace YuriNET.Utils {
-    class DateTimeUtil {
+    static class DateTimeUtil {
 
         public static long GetTimestamp(DateTime value) {
             return long.Parse(value.ToString("yyyyMMddHHmmss"));//yyyyMMddHHmmssffff

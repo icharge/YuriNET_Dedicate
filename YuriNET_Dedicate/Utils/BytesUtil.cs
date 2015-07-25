@@ -4,12 +4,10 @@ using System.Linq;
 using System.Text;
 
 namespace YuriNET.Utils {
-    class BytesUtil {
+    static class BytesUtil {
         /// <summary>
         /// Singleton Class  Can't instantiate
         /// </summary>
-        private BytesUtil() {
-        }
 
         public static short ToShort(byte byte1, byte byte2) {
             return (short) ((byte2 << 8) + byte1);
