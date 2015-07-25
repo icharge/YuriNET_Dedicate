@@ -132,7 +132,10 @@ namespace YuriNET.CoreServer {
         //}
 
         private bool isEqualEndpoint(IPEndPoint ip1, IPEndPoint ip2) {
-            return (ip1.Address.ToString() + ip1.Port).Equals(ip2.Address.ToString() + ip2.Port);
+            Logger.debug("..isEqualEndpoint comparing..");
+            Logger.debug("EP1 : {0}", ip1.ToString());
+            Logger.debug("EP2 : {0}", ip2.ToString());
+            return ip1.ToString().Equals(ip2.ToString());
         }
 
         public void startServer() {
@@ -195,11 +198,15 @@ namespace YuriNET.CoreServer {
                 // Logger.debug("Received data from " + ipPort);
 
                 // Get header from packet
-                short hdrFrom = BytesUtil.ToShort(buf[0], buf[1]);
-                short hdrTo = BytesUtil.ToShort(buf[2], buf[3]);
+                short hdrFrom = BytesUtil.ToShort(buf[0], buf[1], true);
+                short hdrTo = BytesUtil.ToShort(buf[2], buf[3], true);
+
+                Logger.debug("hdrFrom : {0}", hdrFrom);
+                Logger.debug("hdrTo : {0}", hdrTo);
 
                 // Check some condition
                 if (buf.Length < 2) {
+                    Logger.debug("Buf size < 2, Ignore.");
                     continue;
                 }
 
@@ -209,10 +216,12 @@ namespace YuriNET.CoreServer {
 
                 if (null != clientFrom) {
                     if (null == clientFrom.getConnection()) {
+                        Logger.debug("clientFrom connection NULL, set new");
                         clientFrom.setConnection(remoteEndPoint);
                     } else {
                         // Don't allow faking client id
                         if (!isEqualEndpoint(remoteEndPoint, clientFrom.getConnection())) {
+                            Logger.debug("Endpoint is not equal, set clientFrom = null");
                             clientFrom = null;
                         }
                     }

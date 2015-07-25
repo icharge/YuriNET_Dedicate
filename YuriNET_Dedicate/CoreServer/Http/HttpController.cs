@@ -32,8 +32,11 @@ namespace YuriNET.CoreServer.Http {
             myServer = server;
             timeout = server.Timeout;
             maxClients = server.MaxClients;
+            Logger.info("Timeout : {0} secs", timeout);
+            Logger.info("Max Client : {0}", maxClients);
 
             initClients();
+
 
             Logger.info("Creating Timeout Kicker Thread...");
             runnerThread = new Thread(runner);
@@ -63,7 +66,9 @@ namespace YuriNET.CoreServer.Http {
 
         public Client getClient(short clientId) {
             Client client;
+            Logger.debug("getClient({0})", clientId);
             clients.TryGetValue(clientId, out client);
+            Logger.debug("client : {0}", client);
             return client;
         }
 
@@ -204,8 +209,7 @@ namespace YuriNET.CoreServer.Http {
                 // Removing timeout clients
                 var timeouts = clients
                    .Where(kvp => {
-                        int dayplus = DateTimeUtil.TimeDiffBySec(DateTime.Now, kvp.Value.getTimestamp());
-                        return dayplus > timeout;
+                        return DateTimeUtil.checkTimeout(kvp.Value.getTimestamp(), (long)timeout * 1000);
                    }).ToList();
                 if (timeouts.Count > 0) {
                     foreach (var kvp in timeouts) {
