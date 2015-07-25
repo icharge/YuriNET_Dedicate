@@ -28,6 +28,7 @@ namespace YuriNET {
             rbDbgWarn.Click += eventSetDbgLvl;
             rbDbgError.Click += eventSetDbgLvl;
 
+            Server.runOnDebugging();
         }
 
         private Logger.DisplayLevels getSelectedLogLevel() {

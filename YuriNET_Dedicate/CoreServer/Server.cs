@@ -77,7 +77,7 @@ namespace YuriNET.CoreServer {
         }
 
         //[Conditional("DEBUG")]
-        private void runOnDebugging() {
+        public static void runOnDebugging() {
             AllocConsole();
             Console.Clear();
 
@@ -136,7 +136,6 @@ namespace YuriNET.CoreServer {
         }
 
         public void startServer() {
-            runOnDebugging();
             Logger.info("Attemping to start server...");
 
             Logger.info("Initializing Server...");
