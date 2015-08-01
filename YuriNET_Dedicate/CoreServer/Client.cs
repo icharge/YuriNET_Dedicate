@@ -1,21 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Net;
-using System.Runtime.Serialization;
 
 namespace YuriNET.CoreServer {
+
     [Serializable()]
-    class Client : IDisposable {
+    internal class Client : IDisposable {
+
         // Has Dispose() already been called?
-        Boolean isDisposed = false;
+        private Boolean isDisposed = false;
+
         // Implement IDisposable.
         public void Dispose() {
             Console.WriteLine("Client #" + id + " Disposing");
             ReleaseResources(true); // cleans both unmanaged and managed resources
             GC.SuppressFinalize(this); // supress finalization
         }
+
         protected void ReleaseResources(bool isFromDispose) {
             // Try to release resources only if they have not been previously released.
             if (!isDisposed) {
@@ -28,6 +29,7 @@ namespace YuriNET.CoreServer {
             }
             isDisposed = true; // Dispose() can be called numerous times
         }
+
         // Use C# destructor syntax for finalization code, invoked by GC only.
         ~Client() {
             // cleans only unmanaged stuffs
@@ -39,11 +41,13 @@ namespace YuriNET.CoreServer {
         private String name;
         private DateTime timestamp;
         private IList<short> friends;
+
         public enum Game {
             Non,
             RA2,
             YR
         }
+
         private Game game;
 
         public Client(short id, IList<short> friends) {

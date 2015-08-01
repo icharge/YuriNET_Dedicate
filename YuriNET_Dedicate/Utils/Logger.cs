@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace YuriNET.Utils {
+
     /// <summary>
     /// Print Any logs output by level
     /// </summary>
-    static class Logger {
+    internal static class Logger {
+
         public enum DisplayLevels {
             Fatal = 1,
             Error = 2,
@@ -28,7 +27,6 @@ namespace YuriNET.Utils {
                 displayLevel = value;
             }
         }
-
 
         public static void info(Object str, params Object[] arg) {
             if ((displayLevel & DisplayLevels.Info) == DisplayLevels.Info) {

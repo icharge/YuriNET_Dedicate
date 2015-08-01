@@ -1,23 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using YuriNET.Utils;
 
 namespace YuriNET.CoreServer.Http {
+
     /// <summary>
     /// HttpServer
     /// </summary>
     public abstract class HttpServer {
-
         protected int port;
-        TcpListener listener;
-        bool is_active = true;
-        Thread listening;
+        private TcpListener listener;
+        private bool is_active = true;
+        private Thread listening;
 
         public HttpServer(int port) {
             this.port = port;
@@ -62,6 +59,7 @@ namespace YuriNET.CoreServer.Http {
         }
 
         public abstract void handleGETRequest(HttpProcessor p);
+
         public abstract void handlePOSTRequest(HttpProcessor p, StreamReader inputData);
     }
 }

@@ -1,18 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using YuriNET.Components;
 
 namespace YuriNET {
-    static class Program {
+
+    internal static class Program {
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main(String[] args) {
-            if (Environment.OSVersion.Version.Major >= 6) NativeMethods.SetProcessDPIAware();
+        private static void Main(String[] args) {
+            if (Environment.OSVersion.Version.Major >= 6)
+                NativeMethods.SetProcessDPIAware();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
@@ -36,8 +35,5 @@ namespace YuriNET {
 
             Application.Run(new Form1());
         }
-
-
-
     }
 }

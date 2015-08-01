@@ -1,21 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace YuriNET.Utils
-{
-    static class ArrayUtil
-    {
+namespace YuriNET.Utils {
+
+    internal static class ArrayUtil {
         private static Random rng = new Random();
 
-        public static T[] SubArray<T>(this T[] data, int index, int length)
-        {
+        public static T[] SubArray<T>(this T[] data, int index, int length) {
             T[] result = new T[length];
             Array.Copy(data, index, result, 0, length);
             return result;
         }
-
 
         public static void Shuffle<T>(this IList<T> list) {
             int n = list.Count;

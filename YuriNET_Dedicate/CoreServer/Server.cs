@@ -1,60 +1,43 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
-using System.Text;
 using System.Threading;
 using YuriNET.CoreServer.Http;
 using YuriNET.Utils;
 
 namespace YuriNET.CoreServer {
+
     [Serializable()]
-    class Server {
-        // Debug console
-        [DllImport("kernel32.dll")]
-        private static extern bool AllocConsole();
+    internal class Server {
 
         private static Assembly assembly = Assembly.GetExecutingAssembly();
+
         private static FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+
+        private static UdpClient udpClient;
+
+        private HttpController controller;
+
+        private bool isStarted;
+
+        private DateTime launchedOn;
+
+        private int maxClients = 60;
+
+        private string serverName = "YuriNET Dedicated";
+
+        private int socketPort = 9000;
+
+        private int timeout = 60;
+
+        private Thread tunnelThread;
 
         private Server() {
         }
 
-        public class Holder {
-            private static Server server = new Server();
-            public static Server getServer() {
-                return server;
-            }
-        }
-
-        private Thread tunnelThread;
-        private static UdpClient udpClient;
-        private HttpController controller;
-
-        private bool isStarted;
-        private DateTime launchedOn;
-        private int timeout = 60;
-        private int maxClients = 60;
-        private int socketPort = 9000;
-        private string serverName = "YuriNET Dedicated";
-
-        public int Timeout {
-            get {
-                return timeout;
-            }
-            set {
-                if (!isStarted) {
-                    timeout = value;
-                }
-            }
-        }
         public int MaxClients {
             get {
                 return maxClients;
@@ -65,6 +48,7 @@ namespace YuriNET.CoreServer {
                 }
             }
         }
+
         public int SocketPort {
             get {
                 return socketPort;
@@ -72,6 +56,17 @@ namespace YuriNET.CoreServer {
             set {
                 if (!isStarted) {
                     socketPort = value;
+                }
+            }
+        }
+
+        public int Timeout {
+            get {
+                return timeout;
+            }
+            set {
+                if (!isStarted) {
+                    timeout = value;
                 }
             }
         }
@@ -87,16 +82,8 @@ namespace YuriNET.CoreServer {
             Console.Title = string.Format("{0} ({1}) Alpha 1", productNAme, productVersion);
         }
 
-        public void setServerName(string v) {
-            serverName = v;
-        }
-
-        public string getServerName() {
-            return serverName;
-        }
-
-        public string getServerVersion() {
-            return fvi.ProductVersion;
+        public int getClientsCount() {
+            return controller.getClientsCount();
         }
 
         public string getLaunchedOn() {
@@ -107,35 +94,20 @@ namespace YuriNET.CoreServer {
             return launchedOn;
         }
 
-        public int getClientsCount() {
-            return controller.getClientsCount();
+        public string getServerName() {
+            return serverName;
+        }
+
+        public string getServerVersion() {
+            return fvi.ProductVersion;
         }
 
         public bool isServerStarted() {
             return isStarted;
         }
 
-        //private string getJsonClients() {
-        //    var clientsList = clients.Where(kvp => kvp.Value != null).ToList();
-        //    var sb = new StringBuilder("");
-        //    foreach (var kvp in clientsList) {
-        //        sb.Append("\"").Append(kvp.Value.getId()).Append("\": { ")
-        //          .Append("\"name\": \"").Append(kvp.Value.getName()).Append("\",")
-        //          .Append("\"ip\": \"").Append(kvp.Value.getIp()).Append("\",")
-        //          .Append("\"port\": ").Append(kvp.Value.getPort()).Append(",")
-        //          .Append("\"game\": \"").Append(kvp.Value.getGame().ToString()).Append("\" ")
-        //          .Append(" },");
-        //    }
-        //    if (clientsList.Count > 0)
-        //        sb.Length -= 1;
-        //    return sb.ToString();
-        //}
-
-        private bool isEqualEndpoint(IPEndPoint ip1, IPEndPoint ip2) {
-            Logger.debug("..isEqualEndpoint comparing..");
-            Logger.debug("EP1 : {0}", ip1.ToString());
-            Logger.debug("EP2 : {0}", ip2.ToString());
-            return ip1.ToString().Equals(ip2.ToString());
+        public void setServerName(string v) {
+            serverName = v;
         }
 
         public void startServer() {
@@ -182,6 +154,31 @@ namespace YuriNET.CoreServer {
             }
         }
 
+        // Debug console
+        [DllImport("kernel32.dll")]
+        private static extern bool AllocConsole();
+        private bool isEqualEndpoint(IPEndPoint ip1, IPEndPoint ip2) {
+            Logger.debug("..isEqualEndpoint comparing..");
+            Logger.debug("EP1 : {0}", ip1.ToString());
+            Logger.debug("EP2 : {0}", ip2.ToString());
+            return ip1.ToString().Equals(ip2.ToString());
+        }
+
+        //private string getJsonClients() {
+        //    var clientsList = clients.Where(kvp => kvp.Value != null).ToList();
+        //    var sb = new StringBuilder("");
+        //    foreach (var kvp in clientsList) {
+        //        sb.Append("\"").Append(kvp.Value.getId()).Append("\": { ")
+        //          .Append("\"name\": \"").Append(kvp.Value.getName()).Append("\",")
+        //          .Append("\"ip\": \"").Append(kvp.Value.getIp()).Append("\",")
+        //          .Append("\"port\": ").Append(kvp.Value.getPort()).Append(",")
+        //          .Append("\"game\": \"").Append(kvp.Value.getGame().ToString()).Append("\" ")
+        //          .Append(" },");
+        //    }
+        //    if (clientsList.Count > 0)
+        //        sb.Length -= 1;
+        //    return sb.ToString();
+        //}
         private void ReceiveCallback() {
             Logger.info("ReceiveCallback() is on the way...");
             IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
@@ -236,13 +233,15 @@ namespace YuriNET.CoreServer {
                         udpClient.Send(buf, buf.Length, clientTo.getConnection());
                     }
                 }
-
             }
         }
 
+        public class Holder {
+            private static Server server = new Server();
 
-
-
-
+            public static Server getServer() {
+                return server;
+            }
+        }
     }
 }

@@ -5,12 +5,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Web;
 using YuriNET.Utils;
 
 namespace YuriNET.CoreServer.Http {
-    class HttpController : HttpServer {
 
+    internal class HttpController : HttpServer {
         private ConcurrentDictionary<short, Client> clients = new ConcurrentDictionary<short, Client>();
         private IProducerConsumerCollection<short> pool;
         private Server myServer;
@@ -37,7 +36,6 @@ namespace YuriNET.CoreServer.Http {
 
             initClients();
 
-
             Logger.info("Creating Timeout Kicker Thread...");
             runnerThread = new Thread(runner);
             runnerThread.Start();
@@ -55,13 +53,12 @@ namespace YuriNET.CoreServer.Http {
             allShort.Shuffle();
             pool = new ConcurrentQueue<short>(allShort);
 
-            Logger.info("Took {0} secs to initialize pool.", DateTimeUtil.TimeDiffBySec(DateTime.Now, myServer.getLaunchedOnDate()));
+            Logger.info("Took 0 secs to initialize pool.");
         }
 
         public override void stop() {
             base.stop();
             runnerThread.Abort();
-
         }
 
         public Client getClient(short clientId) {
@@ -177,7 +174,6 @@ namespace YuriNET.CoreServer.Http {
             // Send clients ID
             p.writeSuccess();
             p.outputStream.WriteLine(ret.ToString());
-
         }
 
         public override void handlePOSTRequest(HttpProcessor p, StreamReader inputData) {
@@ -209,7 +205,7 @@ namespace YuriNET.CoreServer.Http {
                 // Removing timeout clients
                 var timeouts = clients
                    .Where(kvp => {
-                        return DateTimeUtil.checkTimeout(kvp.Value.getTimestamp(), (long)timeout * 1000);
+                       return DateTimeUtil.checkTimeout(kvp.Value.getTimestamp(), (long) timeout * 1000);
                    }).ToList();
                 if (timeouts.Count > 0) {
                     foreach (var kvp in timeouts) {

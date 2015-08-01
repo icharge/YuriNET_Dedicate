@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using YuriNET.CoreServer;
 using YuriNET.Utils;
 
 namespace YuriNET {
+
     public partial class Form1 : Form {
         private Server server;
 
@@ -87,8 +82,5 @@ namespace YuriNET {
         private void Form1_FormClosing(object sender, FormClosingEventArgs e) {
             button3.PerformClick();
         }
-
-
-
     }
 }

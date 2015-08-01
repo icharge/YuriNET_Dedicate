@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿namespace YuriNET.Utils {
 
-namespace YuriNET.Utils {
-    static class BytesUtil {
+    internal static class BytesUtil {
         /// <summary>
         /// Singleton Class  Can't instantiate
         /// </summary>
@@ -24,7 +20,5 @@ namespace YuriNET.Utils {
             byte2 = (byte) (number >> 8);
             byte1 = (byte) (number & 255);
         }
-
-
     }
 }

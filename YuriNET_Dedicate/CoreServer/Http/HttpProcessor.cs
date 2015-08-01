@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -10,7 +9,7 @@ using System.Web;
 using YuriNET.Utils;
 
 // offered to the public domain for any use with no restriction
-// and also with no warranty of any kind, please enjoy. - David Jeske. 
+// and also with no warranty of any kind, please enjoy. - David Jeske.
 
 // simple HTTP explanation
 // http://www.jmarshall.com/easy/http/
@@ -40,7 +39,6 @@ namespace YuriNET.CoreServer.Http {
             this.srv = srv;
         }
 
-
         private string streamReadLine(Stream inputStream) {
             int next_char;
             string data = "";
@@ -60,6 +58,7 @@ namespace YuriNET.CoreServer.Http {
             }
             return data;
         }
+
         public void process() {
             // we can't use a StreamReader for input, because it buffers up extra data on us inside it's
             // "processed" view of the world, and we want the data raw after the headers
@@ -82,7 +81,7 @@ namespace YuriNET.CoreServer.Http {
             outputStream.Flush();
             // bs.Flush(); // flush any remaining output
             inputStream = null;
-            outputStream = null; // bs = null;            
+            outputStream = null; // bs = null;
             socket.Close();
             if (!srv.isActive()) {
                 Logger.info("Closed connection.");
@@ -154,12 +153,13 @@ namespace YuriNET.CoreServer.Http {
         }
 
         private const int BUF_SIZE = 4096;
+
         public void handlePOSTRequest() {
             // this post data processing just reads everything into a memory stream.
             // this is fine for smallish things, but for large stuff we should really
-            // hand an input stream to the request processor. However, the input stream 
-            // we hand him needs to let him see the "end of the stream" at this content 
-            // length, because otherwise he won't know when he's seen it all! 
+            // hand an input stream to the request processor. However, the input stream
+            // we hand him needs to let him see the "end of the stream" at this content
+            // length, because otherwise he won't know when he's seen it all!
 
             Logger.debug("get post data start");
             int content_len = 0;
@@ -192,7 +192,6 @@ namespace YuriNET.CoreServer.Http {
             }
             Logger.debug("get post data end");
             srv.handlePOSTRequest(this, new StreamReader(ms));
-
         }
 
         public void writeSuccess(string content_type = "text/html") {

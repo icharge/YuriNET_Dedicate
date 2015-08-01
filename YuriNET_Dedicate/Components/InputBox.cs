@@ -1,13 +1,12 @@
-﻿using System.Windows.Forms;
+﻿using System;
 using System.Drawing;
-using System;
+using System.Windows.Forms;
 
-namespace YuriNET.Components
-{
-    class InputBox
-    {
-        public static DialogResult Prompt(string title, string promptText, ref string value)
-        {
+namespace YuriNET.Components {
+
+    internal class InputBox {
+
+        public static DialogResult Prompt(string title, string promptText, ref string value) {
             Form form = new Form();
             Label label = new Label();
             TextBox textBox = new TextBox();
