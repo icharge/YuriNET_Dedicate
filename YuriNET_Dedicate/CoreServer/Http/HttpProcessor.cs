@@ -41,7 +41,7 @@ namespace YuriNET.CoreServer.Http {
 
         private string streamReadLine(Stream inputStream) {
             int next_char;
-            string data = "";
+            StringBuilder data = new StringBuilder();
             while (srv.isActive()) {
                 next_char = inputStream.ReadByte();
                 if (next_char == '\n') {
@@ -54,9 +54,9 @@ namespace YuriNET.CoreServer.Http {
                     Thread.Sleep(1);
                     continue;
                 };
-                data += Convert.ToChar(next_char);
+                data.Append(Convert.ToChar(next_char));
             }
-            return data;
+            return data.ToString();
         }
 
         public void process() {
