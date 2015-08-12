@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Windows.Forms;
+using YuriNET.Common;
 
-namespace YuriNET {
+namespace YuriNET.Dedicate {
 
     internal static class Program {
 

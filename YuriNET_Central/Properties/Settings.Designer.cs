@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace YuriNET.Properties {
+namespace YuriNET.Central.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]

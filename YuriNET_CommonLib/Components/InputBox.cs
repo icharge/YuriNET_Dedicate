@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace YuriNET.Components {
+namespace YuriNET.Common.Components {
 
     internal class InputBox {
 

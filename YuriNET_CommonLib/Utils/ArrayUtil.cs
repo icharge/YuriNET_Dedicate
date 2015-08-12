@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace YuriNET.Utils {
+namespace YuriNET.Common.Utils {
 
     public static class ArrayUtil {
         private static Random rng = new Random();

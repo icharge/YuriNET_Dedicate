@@ -7,7 +7,7 @@
     <ProjectGuid>{D7C27D1E-1771-41D8-9E02-C89DD15E1288}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>YuriNET</RootNamespace>
+    <RootNamespace>YuriNET.Dedicate</RootNamespace>
     <AssemblyName>YuriNET2_Dedicate</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

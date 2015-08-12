@@ -6,7 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Web;
-using YuriNET.Utils;
+using YuriNET.Common.Utils;
 
 // offered to the public domain for any use with no restriction
 // and also with no warranty of any kind, please enjoy. - David Jeske.

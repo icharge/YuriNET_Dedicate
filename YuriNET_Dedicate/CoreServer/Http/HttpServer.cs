@@ -3,7 +3,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using YuriNET.Utils;
+using YuriNET.Common.Utils;
 
 namespace YuriNET.CoreServer.Http {
 

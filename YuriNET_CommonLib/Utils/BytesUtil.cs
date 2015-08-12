@@ -1,4 +1,4 @@
-﻿namespace YuriNET.Utils {
+﻿namespace YuriNET.Common.Utils {
 
     public static class BytesUtil {
         /// <summary>

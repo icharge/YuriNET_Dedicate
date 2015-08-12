@@ -6,13 +6,12 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using YuriNET.CoreServer.Http;
-using YuriNET.Utils;
+using YuriNET.Common.Utils;
 
 namespace YuriNET.CoreServer {
 
     [Serializable()]
     internal class Server {
-
         private static Assembly assembly = Assembly.GetExecutingAssembly();
 
         private static FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
@@ -157,6 +156,7 @@ namespace YuriNET.CoreServer {
         // Debug console
         [DllImport("kernel32.dll")]
         private static extern bool AllocConsole();
+
         private bool isEqualEndpoint(IPEndPoint ip1, IPEndPoint ip2) {
             Logger.debug("..isEqualEndpoint comparing..");
             Logger.debug("EP1 : {0}", ip1.ToString());

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 using YuriNET.CoreServer;
-using YuriNET.Utils;
+using YuriNET.Common.Utils;
 
 namespace YuriNET {
 

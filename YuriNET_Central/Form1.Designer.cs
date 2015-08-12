@@ -1,4 +1,4 @@
-﻿namespace YuriNET_Central {
+﻿namespace YuriNET.Central {
     partial class Form1 {
         /// <summary>
         /// Required designer variable.

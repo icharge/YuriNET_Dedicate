@@ -7,7 +7,7 @@
     <ProjectGuid>{2B9EDC08-86ED-4DCD-A44D-D0678DCF9B13}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>YuriNET</RootNamespace>
+    <RootNamespace>YuriNET.Common</RootNamespace>
     <AssemblyName>YuriNET_CommonLib</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

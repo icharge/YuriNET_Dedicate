@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace YuriNET {
+namespace YuriNET.Common {
 
     public static class NativeMethods {
 

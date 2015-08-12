@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace YuriNET.Utils {
+namespace YuriNET.Common.Utils {
 
     public static class DateTimeUtil {
 

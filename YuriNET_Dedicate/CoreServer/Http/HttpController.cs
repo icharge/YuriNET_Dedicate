@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using YuriNET.Utils;
+using YuriNET.Common.Utils;
 
 namespace YuriNET.CoreServer.Http {
 
