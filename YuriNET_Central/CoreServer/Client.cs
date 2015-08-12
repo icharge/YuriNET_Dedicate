@@ -51,7 +51,7 @@ namespace YuriNET.Central.CoreServer {
         private DateTime joined;
 
         private Socket socket;
-        //private IList<short> friends;
+        //private IList<short> friends; // maybe room client list?
 
         public Client(Socket socket, String name, String userId = null) {
             this.socket = socket;

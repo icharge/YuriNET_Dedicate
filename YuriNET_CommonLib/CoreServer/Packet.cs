@@ -36,5 +36,9 @@
         public Packet(byte[] byteData) {
             this.byteData = byteData;
         }
+
+        public byte[] getBytes() {
+            return byteData;
+        }
     }
 }
