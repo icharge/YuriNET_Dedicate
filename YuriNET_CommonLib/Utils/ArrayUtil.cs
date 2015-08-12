@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace YuriNET.Utils {
 
-    internal static class ArrayUtil {
+    public static class ArrayUtil {
         private static Random rng = new Random();
 
         public static T[] SubArray<T>(this T[] data, int index, int length) {

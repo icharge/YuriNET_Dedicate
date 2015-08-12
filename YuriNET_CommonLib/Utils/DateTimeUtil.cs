@@ -2,7 +2,7 @@
 
 namespace YuriNET.Utils {
 
-    internal static class DateTimeUtil {
+    public static class DateTimeUtil {
 
         public static long GetTimestamp(DateTime date) {
             return date.Ticks;

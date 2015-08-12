@@ -1,6 +1,6 @@
 ﻿namespace YuriNET.Utils {
 
-    internal static class BytesUtil {
+    public static class BytesUtil {
         /// <summary>
         /// Singleton Class  Can't instantiate
         /// </summary>

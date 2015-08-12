@@ -2,7 +2,7 @@
 
 namespace YuriNET {
 
-    internal static class NativeMethods {
+    public static class NativeMethods {
 
         // For DPI Aware
         [DllImport("user32.dll")]

@@ -5,7 +5,7 @@ namespace YuriNET.Utils {
     /// <summary>
     /// Print Any logs output by level
     /// </summary>
-    internal static class Logger {
+    public static class Logger {
 
         public enum DisplayLevels {
             Fatal = 1,
