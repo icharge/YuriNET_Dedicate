@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Net;
 using System.Net.Sockets;
 
 namespace YuriNET.Central.CoreServer {
@@ -8,10 +6,10 @@ namespace YuriNET.Central.CoreServer {
     [Serializable()]
     internal class Client : IDisposable {
 
+        #region "Disposing"
+
         // Has Dispose() already been called?
         private Boolean isDisposed = false;
-
-        #region "Disposing"
 
         // Implement IDisposable.
         public void Dispose() {
@@ -118,7 +116,6 @@ namespace YuriNET.Central.CoreServer {
         public DateTime getJoined() {
             return joined;
         }
-
     }
 
     internal enum ClientStatus {
