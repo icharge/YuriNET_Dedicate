@@ -8,7 +8,7 @@ using System.Runtime.Serialization;
 namespace YuriNET.CoreServer
 {
     [Serializable()]
-    class Client : IDisposable, ISerializable
+    public class Client : IDisposable, ISerializable
     {
         // Has Dispose() already been called?
         Boolean isDisposed = false;

@@ -17,10 +17,10 @@ namespace YuriNET_Dedicate {
 
         public Form1() {
             InitializeComponent();
-            rbDbgNone.Tag = Logger.DisplayLevels.Info;
-            rbDbgDebug.Tag = Logger.DisplayLevels.Debug | Logger.DisplayLevels.Info;
-            rbDbgWarn.Tag = Logger.DisplayLevels.Warn | Logger.DisplayLevels.Debug | Logger.DisplayLevels.Info;
-            rbDbgError.Tag = Logger.DisplayLevels.Error | Logger.DisplayLevels.Warn | Logger.DisplayLevels.Debug | Logger.DisplayLevels.Info;
+            rbDbgNone.Tag = Logger.Level.Info;
+            rbDbgDebug.Tag = Logger.Level.Debug | Logger.Level.Info;
+            rbDbgWarn.Tag = Logger.Level.Warn | Logger.Level.Debug | Logger.Level.Info;
+            rbDbgError.Tag = Logger.Level.Error | Logger.Level.Warn | Logger.Level.Debug | Logger.Level.Info;
 
             EventHandler eventSetDbgLvl = new EventHandler(
                 (sender, e) => Logger.DisplayLevel = getSelectedLogLevel()
@@ -32,16 +32,16 @@ namespace YuriNET_Dedicate {
 
         }
 
-        private Logger.DisplayLevels getSelectedLogLevel() {
-            Logger.DisplayLevels logDispLvl = Logger.DisplayLevels.All;
+        private Logger.Level getSelectedLogLevel() {
+            Logger.Level logDispLvl = Logger.Level.All;
             if (rbDbgNone.Checked) {
-                logDispLvl = (Logger.DisplayLevels) rbDbgNone.Tag;
+                logDispLvl = (Logger.Level) rbDbgNone.Tag;
             } else if (rbDbgDebug.Checked) {
-                logDispLvl = (Logger.DisplayLevels) rbDbgDebug.Tag;
+                logDispLvl = (Logger.Level) rbDbgDebug.Tag;
             } else if (rbDbgWarn.Checked) {
-                logDispLvl = (Logger.DisplayLevels) rbDbgWarn.Tag;
+                logDispLvl = (Logger.Level) rbDbgWarn.Tag;
             } else if (rbDbgError.Checked) {
-                logDispLvl = (Logger.DisplayLevels) rbDbgError.Tag;
+                logDispLvl = (Logger.Level) rbDbgError.Tag;
             }
 
             return logDispLvl;
@@ -70,19 +70,23 @@ namespace YuriNET_Dedicate {
         }
 
         private void btn_loadState_Click(object sender, EventArgs e) {
-            storage.Load();
-            server = (Server) storage.get_Item("server");
-            server.startServer();
-            button1.Enabled = false;
-            button3.Enabled = true;
+            //storage.Load();
+            //server = (Server) storage.get_Item("server");
+            
+            server.loadClients();
+            //server.startServer();
+            //button1.Enabled = false;
+            //button3.Enabled = true;
         }
 
         private void btn_saveState_Click(object sender, EventArgs e) {
-            storage.set_Item("server", server);
-            storage.Save();
-            server.stopServer();
-            button1.Enabled = true;
-            button3.Enabled = false;
+            //storage.set_Item("server", server);
+            //storage.Save();
+
+            server.dumpClients();
+            //server.stopServer();
+            //button1.Enabled = true;
+            //button3.Enabled = false;
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e) {
